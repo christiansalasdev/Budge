@@ -61,10 +61,51 @@ def add_bill():
         bill.save()
         return "Bill was added."
 
+@app.route("/app/add_paycheck", methods=['GET', 'POST'])
+def add_paycheck():
+    if request.method == 'GET':
+        return render_template("add_paycheck.html")
+    if request.method == 'POST':
+        amount = float(request.form['amount'])
+        pay_date = request.form['pay_date']
+
+        paycheck = Paycheck(payee = current_user, amount = amount, pay_date = pay_date)
+        paycheck.save()
+    
+        return "Paycheck was added."
+
 
 @app.route("/app/bills")
 def bills():
     if request.method == 'GET':
         bills = Bill.objects(payer = current_user)
         return render_template("bills.html", bills = bills)
+
+@app.route("/app/paychecks")
+def paychecks():
+    if request.method == 'GET':
+        paychecks = Paycheck.objects(payee = current_user)
+        bills = Bill.objects(payer = current_user)
+        return render_template("paychecks.html", paychecks = paychecks, bills = bills)
+
+@app.route("/paycheck/<id>")
+def get_paycheck(id):
+    paycheck = Paycheck.objects.with_id(id)
+    if paycheck:
+        if paycheck.payee == current_user:
+            future_paychecks = Paycheck.objects.filter(pay_date__gt=paycheck.pay_date)
+            total_due = 0
+            if future_paychecks:
+                future_paychecks = future_paychecks.order_by("pay_date")
+                next_paycheck = future_paychecks.first()
+                bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date, due_date__lte=next_paycheck.pay_date)
+                for bill in bills: total_due += bill.amount
+                return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
+            else:
+                bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date)
+                for bill in bills: total_due += bill.amount
+                return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
+    else:
+        return "That doesn't exist."
+
 

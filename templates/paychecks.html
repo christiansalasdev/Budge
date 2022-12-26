@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<h1>Paychecks</h1>
+
+{% for paycheck in paychecks %}
+    - {{ paycheck.payee.user_name }}
+    <br>
+    - {{ paycheck.amount }}
+    <br>
+    - {{ paycheck.pay_date }}<br>
+    ---------------------------<br>
+{% endfor %}
+    
+{% endblock %}

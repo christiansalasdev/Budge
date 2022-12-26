@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h1>Add Paycheck</h1>
+
+    <form action="" method="POST">
+        <div>
+            <label for="amount">Amount</label>
+            <input type="text" name="amount" id="">
+        </div>
+        
+        <div>
+            <label for="pay_date">Pay Date</label>
+            <input type="date" name="pay_date" id="">
+        </div>
+
+    
+        <button type="submit" class="btn btn-primary">Add Paycheck</button>
+    </form>
+{% endblock %}

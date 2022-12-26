@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+
+{% block main %}
+
+<h1>Paycheck</h1>
+<h6>Paydate: {{ paycheck.pay_date }}</h6>
+<h6>Pay Amount: ${{ paycheck.amount }}</h6>
+<h6>Remainder: ${{ paycheck.amount - total_due }}</h6>
+
+
+
+
+<ol>
+    {% for bill in bills %}
+    <li>{{ bill.name }} ({{ bill.due_date }}) - {{ bill.amount }}</li>
+ {% endfor %}
+</ol>
+
+
+
+    
+{% endblock %}

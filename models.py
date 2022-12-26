@@ -45,7 +45,7 @@ class Bill(Document):
     payer = ReferenceField(User)
     name = StringField()
     due_date = DateTimeField()
-    amount = DecimalField()
+    amount = FloatField()
     recurring = BooleanField()
     paid = BooleanField(default=False)
 
@@ -56,7 +56,7 @@ class Bill(Document):
 class Paycheck(Document):
     id = SequenceField(primary_key=True)
     payee = ReferenceField(User)
-    amount = DecimalField()
+    amount = FloatField()
     pay_date = DateTimeField()
 
 
