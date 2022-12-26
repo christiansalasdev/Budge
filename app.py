@@ -1,7 +1,7 @@
 from datetime import datetime
 from models import User, Bill, Paycheck
 from flask import Flask, render_template, redirect, url_for, request
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, current_user
 
 login_manager = LoginManager()
 
@@ -47,4 +47,24 @@ def login():
         else:
             return "A user with that username does not exist or the password is incorrect."
     return redirect(url_for("index"))
+
+@app.route("/app/add_bill", methods=['GET', 'POST'])
+def add_bill():
+    if request.method == 'GET':
+        return render_template("add_bill.html")
+    if request.method == 'POST':
+        name = request.form['name']
+        due_date = request.form['due_date']
+        amount = float(request.form['amount'])
+        recurring = request.form['recurring']
+        bill = Bill(payer = current_user, name = name, due_date = due_date, amount = amount, recurring = recurring)
+        bill.save()
+        return "Bill was added."
+
+
+@app.route("/app/bills")
+def bills():
+    if request.method == 'GET':
+        bills = Bill.objects(payer = current_user)
+        return render_template("bills.html", bills = bills)
 

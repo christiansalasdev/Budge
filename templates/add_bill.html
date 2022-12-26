@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <h1>Add Bill</h1>
+
+    <form action="" method="POST">
+        <div>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="">
+        </div>
+        
+        <div>
+            <label for="due_date">Due Date</label>
+            <input type="date" name="due_date" id="">
+        </div>
+    
+        <div>
+            <label for="amount">Amount</label>
+            <input type="text" name="amount" id="">
+        </div>
+
+        <div>
+            <label for="recurring">Recurring</label>
+            <input type="checkbox" name="recurring" id="">
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Add Bill</button>
+    </form>
+{% endblock %}

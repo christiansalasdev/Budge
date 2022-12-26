@@ -46,7 +46,7 @@ class Bill(Document):
     name = StringField()
     due_date = DateTimeField()
     amount = DecimalField()
-    recurring = BooleanField(default=True)
+    recurring = BooleanField()
     paid = BooleanField(default=False)
 
     def mark_as_paid(self):
