@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime
 from models import User, Bill, Paycheck
 from flask import Flask, render_template, redirect, url_for, request
@@ -20,6 +21,11 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.objects.get(id = user_id)
+
+@app.template_filter('format_currency')
+def format_currency(amount):
+    value = float(amount)
+    return "${:,.2f}".format(value)
 
 @app.route("/")
 def index():
@@ -81,7 +87,7 @@ def add_paycheck():
 
 @app.route("/app/bills")
 def bills():
-    if request.method == 'GET':
+    
         current_month = datetime.now().month
         current_year = datetime.now().year
 
@@ -111,21 +117,38 @@ def paychecks():
 @app.route("/paycheck/<id>")
 def get_paycheck(id):
     paycheck = Paycheck.objects.with_id(id)
-    if paycheck:
-        if paycheck.payee == current_user:
-            future_paychecks = Paycheck.objects.filter(pay_date__gt=paycheck.pay_date)
-            total_due = 0
-            if future_paychecks:
-                future_paychecks = future_paychecks.order_by("pay_date")
-                next_paycheck = future_paychecks.first()
-                bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date, due_date__lte=next_paycheck.pay_date)
-                for bill in bills: total_due += bill.amount
-                return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
-            else:
-                bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date)
-                for bill in bills: total_due += bill.amount
-                return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
-    else:
-        return "That doesn't exist."
+    if paycheck and paycheck.payee == current_user:
+        future_paychecks = Paycheck.objects.filter(pay_date__gt=paycheck.pay_date)
+        if future_paychecks:
+            all_future_paychecks = future_paychecks.order_by("pay_date")
+            next_paycheck = all_future_paychecks.first()
+            bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date, due_date__lte=next_paycheck.pay_date)
+            total_due = bills.sum("amount")
+            print(total_due)
+            return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
+
+    #         future_paychecks = Paycheck.objects.filter(pay_date__gt=paycheck.pay_date)
+    #         total_due = 0
+    #         if future_paychecks:
+    #             future_paychecks = future_paychecks.order_by("pay_date")
+    #             next_paycheck = future_paychecks.first()
+    #             bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date, due_date__lte=next_paycheck.pay_date)
+    #             for bill in bills: total_due += bill.amount
+    #             return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
+    #         else:
+    #             bills = Bill.objects(payer = current_user, due_date__gte=paycheck.pay_date)
+    #             for bill in bills: total_due += bill.amount
+    #             return render_template("get_paycheck.html", paycheck = paycheck, bills = bills, total_due = total_due)
+    # else:
+    #     return "That doesn't exist."
 
 
+@app.route('/calendar/<int:month>/<int:year>')
+def show_calendar(month, year):
+    # Create a calendar for the specified month and year
+    cal = calendar.Calendar()
+    month_cal = cal.monthdatescalendar(year, month)
+    bills = Bill.objects(payer = current_user)
+
+    # Render the calendar template
+    return render_template('calendar.html', month_cal=month_cal, month=month, year=year, bills = bills)

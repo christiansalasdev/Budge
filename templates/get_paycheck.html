@@ -5,16 +5,17 @@
 {% block main %}
 
 <h1>Paycheck</h1>
-<h6>Paydate: {{ paycheck.pay_date }}</h6>
-<h6>Pay Amount: ${{ paycheck.amount }}</h6>
-<h6>Remainder: ${{ paycheck.amount - total_due }}</h6>
+<h6>Paydate: {{  moment(paycheck.pay_date, local=True).format('MMMM Do, YYYY') }}</h6>
+<h6>Pay Amount: {{ paycheck.amount|format_currency }}</h6>
+<h6>Total Due: {{ total_due|format_currency }}</h6>
+<h6>Remainder: {{ (paycheck.amount - total_due) | format_currency }}</h6>
 
 
 
 
 <ol>
     {% for bill in bills %}
-    <li>{{ bill.name }} ({{ moment(bill.due_date).format('LL') }}) - ${{ bill.amount }}</li>
+    <li>{{ bill.name }} ({{ moment(bill.due_date, local=True).format('MMMM Do, YYYY') }}) - {{ bill.amount|format_currency }}</li>
  {% endfor %}
 </ol>
 
