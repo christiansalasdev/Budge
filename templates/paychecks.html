@@ -3,14 +3,28 @@
 {% block main %}
 
 <h1>Paychecks</h1>
-
-{% for paycheck in paychecks %}
-    - {{ paycheck.payee.user_name }}
-    <br>
-    - {{ paycheck.amount }}
-    <br>
-    - {{ paycheck.pay_date }}<br>
-    ---------------------------<br>
+{# }
+<div class="row">
+    {% for paycheck in paychecks %}
+    <div class="col">
+        <div>{{ moment(paycheck.pay_date).format('LL') }}</div>
+        <div>{{ paycheck.amount }}</div>
+        <br><br>
+        {% for bill in bills if bill.due_date >= paycheck.pay_date %}
+        {{ bill.name }} <br> 
+        {% endfor %}
+    </div>
 {% endfor %}
+</div>
+
+<div class="row">
+    <div class="col">
+       {{ bills }}
+    </div>
+</div>
+#}
+
+{{ all_paychecks }}
+
     
 {% endblock %}

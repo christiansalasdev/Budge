@@ -2,6 +2,9 @@ from datetime import datetime
 from models import User, Bill, Paycheck
 from flask import Flask, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_user, current_user
+from flask_moment import Moment
+from mongoengine import Q
+
 
 login_manager = LoginManager()
 
@@ -10,6 +13,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "8lJFz9pnU6l0xXT4RqkQmB3XV_lmr1TwSY-WMFEsGec"
 
+moment = Moment(app)
 login_manager.init_app(app)
 
 
@@ -78,7 +82,13 @@ def add_paycheck():
 @app.route("/app/bills")
 def bills():
     if request.method == 'GET':
-        bills = Bill.objects(payer = current_user)
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+
+        query = Q(due_date__month=current_month) & Q(due_date__year=current_year) & Q(payer = current_user)
+        
+        bills = Bill.objects(query)
+
         return render_template("bills.html", bills = bills)
 
 @app.route("/app/paychecks")
@@ -86,7 +96,17 @@ def paychecks():
     if request.method == 'GET':
         paychecks = Paycheck.objects(payee = current_user)
         bills = Bill.objects(payer = current_user)
-        return render_template("paychecks.html", paychecks = paychecks, bills = bills)
+
+        all_paychecks = {}
+
+        i = 0
+        for paycheck in paychecks:
+            all_paychecks[i].append(paycheck)
+            i += 1
+
+        print(all_paychecks)
+
+        return render_template("paychecks.html", all_paychecks = all_paychecks)
 
 @app.route("/paycheck/<id>")
 def get_paycheck(id):

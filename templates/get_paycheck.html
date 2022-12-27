@@ -14,7 +14,7 @@
 
 <ol>
     {% for bill in bills %}
-    <li>{{ bill.name }} ({{ bill.due_date }}) - {{ bill.amount }}</li>
+    <li>{{ bill.name }} ({{ moment(bill.due_date).format('LL') }}) - ${{ bill.amount }}</li>
  {% endfor %}
 </ol>
 
